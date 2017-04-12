@@ -24,69 +24,54 @@ var mouse = pjs.mouseControl.initMouseControl();
 
 var r = game.getResolution();
 
-var fon1 = game.newImageObject({
-	x : 0, y : 0,
-	file : 'img/background01.png',
-	h : height,
-	onload : function () {
-		fon2.x = fon1.x + fon1.w;
-	}
-});
+var createBackground = function(imageName, cords, onload){
+	return game.newImageObject({
+		x: (cords) ? cords.x + cords.w : 0,
+		y : 0,
+		file : 'img/' + imageName+ '.png',
+		h: height,
+		onload : onload
+	})
+}
 
-var fon2 = game.newImageObject({
-	x : fon1.x + fon1.w, y : 0,
-	file : 'img/background01.png',
-	h : height
-});
+var fon1 =  createBackground('background01', undefined, function(){ fon2.x = fon1.x + fon1.w });
 
-var fon3 = game.newImageObject({
-	x : 0, y : 0,
-	file : 'img/Steampunk.png',
-	h : height,
-	onload : function () {
-		fon4.x = fon3.x + fon3.w;
-	}
-});
+var fon2 = createBackground('background01', {x : fon1.x, w:fon1.w});
 
-var fon4 = game.newImageObject({
-	x : fon3.x + fon3.w, y : 0,
-	file : 'img/Steampunk.png',
-	h : height
-});
+var fon3 =  createBackground('Steampunk', undefined, function(){ fon4.x = fon3.x + fon3.w });
 
-var fon5 = game.newImageObject({
-	x : 0, y : 0,
-	file : 'img/Outerspace.png',
-	h : height,
-	onload : function () {
-		fon6.x = fon5.x + fon5.w;
-	}
-});
+var fon4 = createBackground('Steampunk', {x : fon3.x, w:fon3.w});
 
-var fon6 = game.newImageObject({
-	x : fon5.x + fon5.w, y : 0,
-	file : 'img/Outerspace.png',
-	h : height
-});
+var fon5 =  createBackground('Outerspace', undefined, function(){ fon6.x = fon5.x + fon5.w });
+
+var fon6 = createBackground('Outerspace', {x : fon5.x, w:fon5.w});
+
 
 var player = game.newAnimationObject({
-	x : width / 5, y : height /3,
+	x : width / 5, y : 0,
 	h : 250*r, w : 200*r,
 	animation : pjs.tiles.newAnimation('img/ninja_run.png', 363, 454, 10),
 	delay : 1, scale : 0.3
 });
 
 var musicOn = game.newImageObject({
-	x : 0, y : 0,
-	file : 'img/music_on.png',
-	h : 40*r, w : 40*r
+	x : 20, y : 7,
+	file : 'img/music_off.png',
+	h : 35*r, w : 35*r
 });
 
 var musicOff = game.newImageObject({
-	x : 0, y : 0,
-	file : 'img/music_off.png',
-	h : 40*r, w : 40*r
+	x : 20, y : 7,
+	file : 'img/music_on.png',
+	h : 35*r, w : 35*r
 });
+
+var xp = game.newImageObject({
+	x : 600, y : 200,
+	file : 'img/xp.png',
+	h : 200*r, w : 200*r
+});
+
 
 var exitToMainMenu = game.newTextObject({
 	x : width/3, y : height/3 + 100*r,
@@ -105,7 +90,7 @@ var win = pjs.audio.newAudio('mp3/win.wav');
 var paused = pjs.audio.newAudio('mp3/pause.wav');
 
 
-var moveBackground = function (s) {
+var moveBackground = function (s, fon1, fon2) {
 	fon1.move(point(-s/2, 0));
 	fon2.move(point(-s/2, 0));
 
@@ -115,34 +100,8 @@ var moveBackground = function (s) {
 	if (fon2.x + fon2.w < 0) {
 		fon2.x = fon1.x + fon1.w;
 	}
-
 }
 
-var moveBackground1 = function (s) {
-	fon3.move(point(-s/2, 0));
-	fon4.move(point(-s/2, 0));
-
-	if (fon3.x + fon3.w < 0) {
-		fon3.x = fon4.x + fon2.w;
-	}
-	if (fon4.x + fon4.w < 0) {
-		fon4.x = fon3.x + fon4.w;
-	}
-
-}
-
-var moveBackground2 = function (s) {
-	fon5.move(point(-s/2, 0));
-	fon6.move(point(-s/2, 0));
-
-	if (fon5.x + fon5.w < 0) {
-		fon5.x = fon6.x + fon6.w;
-	}
-	if (fon6.x + fon6.w < 0) {
-		fon6.x = fon5.x + fon5.w;
-	}
-
-}
 player.gr = 1;
 player.speed = point(0, 0);
 player.health = 100;
@@ -189,7 +148,7 @@ var map2 = {
 		'',
 		'           2                2                        2                               2                                 2                            2             2             2              2                               2             2                2                2                                 2                2                  2                     2                  2                  2                          2                  2                           2',
 		'',
-		'             11               1        1        11            1       111         1    1            1         11        1           11    1          1    11       1       1           1       11          111           1   1            1        1            111               1                 11             111        1       1      1             1  1  1  1  1        111                11   11   11   11   11       1 11    111             111   111   11    1      1         11               3',
+		'             11               1        1        11            1       111         1    1            1         11        1           11    1          1    11       1       1           1       11          111           1   1            1        1            111               1                 11             111        1       1      1             1    1            111                11        11      11       1 11    111             111     111       1      1         11               3',
 		'000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000'
 	]
 };
@@ -209,7 +168,7 @@ var enemies2 = [];
 var foods2 = [];
 var flag2 = [];
 
-// First lvl array's elements
+
 
 OOP.forArr(map.source, function (string, Y) {
 	OOP.forArr(string, function (symbol, X) {
@@ -250,7 +209,6 @@ OOP.forArr(map.source, function (string, Y) {
 	})
 });
 
-// Second lvl array's elements
 
 OOP.forArr(map1.source, function (string, Y) {
 	OOP.forArr(string, function (symbol, X) {
@@ -291,7 +249,6 @@ OOP.forArr(map1.source, function (string, Y) {
 	})
 });
 
-// Third lvl array's elements
 
 OOP.forArr(map2.source, function (string, Y) {
 	OOP.forArr(string, function (symbol, X) {
@@ -334,8 +291,6 @@ OOP.forArr(map2.source, function (string, Y) {
 
 var kunai = [];
 
-// First lvl timer for Bombs
-
 var timer = OOP.newTimer(2000, function () {
 	kunai.push(game.newAnimationObject({
 		animation : pjs.tiles.newAnimation('img/bomb.png', 91, 99, 4),
@@ -345,7 +300,6 @@ var timer = OOP.newTimer(2000, function () {
 	}));
 });
 
-// Second lvl timer for Bombs
 
 var timer1 = OOP.newTimer(1500, function () {
 	kunai.push(game.newAnimationObject({
@@ -356,7 +310,6 @@ var timer1 = OOP.newTimer(1500, function () {
 	}));
 });
 
-// Third lvl timer for Bombs
 
 var timer2 = OOP.newTimer(1000, function () {
 	kunai.push(game.newAnimationObject({
@@ -373,554 +326,209 @@ var heart = game.newImageObject({
 	x : width/7 - 36*r , y : 2.5*r
 });
 
-
-// First game loop
-game.newLoop('game', function () {
-	// game.clear();
-	fon1.draw();
-	fon2.draw();
-	player.draw();
-	heart.draw();
-	timer.restart();
-
-	OOP.forArr(kunai, function (el) {
-		el.draw();
-		el.move(point(0, 1.5*r));
-
-		if (el.isStaticIntersect(player)) {
-				if(el.visible === true){
-					if(player.health < 20){
-						player.health = 0;
-					} else{
-					player.health -= 20;
-					}
-				}
-				el.setVisible(false);
-				airBomb.play();
+function setGameLoop(gameName, timer, walls, enemies, foods, flag, fon1, fon2, nextGameName, level, pause){
+	musicOn.setVisible(false);
+	game.newLoop(gameName, function () {
+		var dirty = false;
+		fon1.draw();
+		fon2.draw();
+		player.draw();
+		heart.draw();
+		timer.restart();
+		musicOff.draw();
+		musicOn.draw();
+		if (mouse.isPeekObject('LEFT', musicOn) && !musicOff.visible) {
+			musicOn.setVisible(false);
+			musicOff.setVisible(true);
+			backgroundAudio.pause();
+			dirty = true;
 		}
 
-		if (el.isStaticIntersect(walls)) {
-				el.setVisible(false);			
-		}
-
-	});
-
-	OOP.drawArr(walls, function (wall) {
-		if (wall.isInCameraStatic()) {
-			if (wall.isStaticIntersect(player)) {
-				if (player.speed.y > 0) {
-					if (key.isDown('UP')) {
-						player.speed.y = -12*r;
-						jump.play();
-					}else {
-						player.y = wall.y - player.h; 
-						player.speed.y *= -0.3;
-					}
-				}
-			}
-		}
-	});
-
-	OOP.drawArr(enemies, function (enemy) {
-		if (enemy.isInCameraStatic()) {
-			if (enemy.isStaticIntersect(player)) {
-				if(enemy.visible === true){
-					if (player.health < 15){
-						player.health = 0;
-					} else {
-					player.health -= 15;
-					}
-				}
-				enemy.setVisible(false);
-				punch.play();	
-			}
-		}
-	});
-
-	OOP.drawArr(foods, function (food) {
-		if (food.isInCameraStatic()) {
-			if (food.isStaticIntersect(player)) {
-				if(food.visible === true){
-					if (player.health > 90) {
-					player.health = 100;			
-					}  else {
-				       player.health += 10;
-				   	}
-				}
-				food.setVisible(false);
-				eating.play();
-			}
-		}
-	});
-
-	OOP.forArr(walls, function (el) {
-		el.draw();
-		el.move(point(-5*r, 0));
-	});
-
-	OOP.forArr(enemies, function (el) {
-		el.draw();
-		el.move(point(-5*r, 0));
-	});
-
-	OOP.forArr(foods, function (el) {
-		el.draw();
-		el.move(point(-5*r, 0));
-	});
-
-	OOP.forArr(flag, function (el) {
-		el.draw();
-		el.move(point(-5*r, 0));
-
-		if (el.isStaticIntersect(player) || el.x < player.x) {
-				game.stop();
-				brush.drawText({
-					x : width/5, y : height/3,
-					text : 'You have passed the first level!!!',
-					size : 40*r,
-					color : 'red', strokeColor : 'white',
-					strokeWidth : 1.5*r
-				});
-				backgroundAudio.stop();
-				win.play();
-
-		}
-
-	});
-	
-	brush.drawText({
-		x : width/7, y : 8*r,
-		text : Math.floor(player.health),
-		size : 18*r,
-		color : '#98D1CC',
-		strokeColor : 'black',
-		strokeWidth : 1*r
-	});
-
-	player.speed.y += player.gr;
-
-	if (key.isPress('RIGHT')) {
-		player.speed.x += 5;
-	}
-	if (key.isPress('LEFT')) {
-		player.speed.x += -5;
-	}
-	if (key.isUp('LEFT') || key.isUp('RIGHT')) {
-		player.speed.x = 0;
-	}
-
-	if (key.isPress('ESC')) {
-		paused.play();
-		game.setLoop('pause');
-	}
- 
-	if (player.speed.y) {
-		player.y += player.speed.y;
-	}
-
-	if (player.speed.x) {
-		player.x += player.speed.x;
-	}
-
-	if (player.health == 0) {
-		backgroundAudio.stop();
-		game.setLoop('lose');
-	}
-
-	if (player.health > 100) {
-		player.health = 100;
-	}
-
-	if (key.isDown('LEFT') && player.x < 10){
-  		player.x += 5;
-  	}
-
-  	if (key.isDown('RIGHT') && player.x > (width - 100)){
-  		player.x -= 5;
-  	}
-
-  	
-  	if (key.isPress('CTRL')){
-  		if (backgroundAudio.playing) {
-	
-			backgroundAudio.stop();
-			
-		} else {
-			
+		if (mouse.isPeekObject('LEFT', musicOff) && !musicOn.visible && !dirty) {
 			backgroundAudio.play();
-			
+			musicOff.setVisible(false);
+			musicOn.setVisible(true);
 		}
-  	}
 
-	moveBackground(8);
-	timer.start();
-});
 
-// Second game loop
-game.newLoop('game1', function () {
-	// game.clear();
-	fon3.draw();
-	fon4.draw();
-	player.draw();
-	heart.draw();
-	timer1.restart();
 
-	OOP.forArr(kunai, function (el) {
-		el.draw();
-		el.move(point(0, 1.5*r));
+		OOP.forArr(kunai, function (el) {
+			el.draw();
+			el.move(point(0, 1.5*r));
 
-		if (el.isStaticIntersect(player)) {
-				if(el.visible === true){
-					if(player.health < 20){
-						player.health = 0;
-					} else{
-					player.health -= 20;
+			if (el.isStaticIntersect(player)) {
+					if(el.visible === true){
+						if(player.health < 20){
+							player.health = 0;
+						} else{
+						player.health -= 20;
+						}
 					}
-				}
-				el.setVisible(false);
-				airBomb.play();
-		}
+					el.setVisible(false);
+					airBomb.play();
+			}
 
-		if (el.isStaticIntersect(walls)) {
-				el.setVisible(false);			
-		}
+			if (el.isStaticIntersect(walls)) {
+					el.setVisible(false);			
+			}
 
-	});
+		});
 
-	OOP.drawArr(walls1, function (wall) {
-		if (wall.isInCameraStatic()) {
-			if (wall.isStaticIntersect(player)) {
-				if (player.speed.y > 0) {
-					if (key.isDown('UP')) {
-						player.speed.y = -12*r;
-						jump.play();
-					}else {
-						player.y = wall.y - player.h; 
-						player.speed.y *= -0.3;
+		OOP.drawArr(walls, function (wall) {
+			if (wall.isInCameraStatic()) {
+				if (wall.isStaticIntersect(player)) {
+					if (player.speed.y > 0) {
+						if (key.isDown('UP')) {
+							player.speed.y = -12*r;
+							jump.play();
+						}else {
+							player.y = wall.y - player.h; 
+							player.speed.y *= -0.3;
+						}
 					}
 				}
 			}
-		}
-	});
+		});
 
-	OOP.drawArr(enemies1, function (enemy) {
-		if (enemy.isInCameraStatic()) {
-			if (enemy.isStaticIntersect(player)) {
-				if(enemy.visible === true){
-					if (player.health < 15){
-						player.health = 0;
-					} else {
-					player.health -= 15;
+		OOP.drawArr(enemies, function (enemy) {
+			if (enemy.isInCameraStatic()) {
+				if (enemy.isStaticIntersect(player)) {
+					if(enemy.visible === true){
+						if (player.health < 15){
+							player.health = 0;
+						} else {
+						player.health -= 15;
+						}
 					}
+					enemy.setVisible(false);
+					punch.play();	
 				}
-				enemy.setVisible(false);
-				punch.play();	
 			}
-		}
-	});
+		});
 
-	OOP.drawArr(foods1, function (food) {
-		if (food.isInCameraStatic()) {
-			if (food.isStaticIntersect(player)) {
-				if(food.visible === true){
-					if (player.health > 90) {
-					player.health = 100;			
-					}  else {
-				       player.health += 10;
-				   	}
+		OOP.drawArr(foods, function (food) {
+			if (food.isInCameraStatic()) {
+				if (food.isStaticIntersect(player)) {
+					if(food.visible === true){
+						if (player.health > 90) {
+						player.health = 100;			
+						}  else {
+					       player.health += 10;
+					   	}
+					}
+					food.setVisible(false);
+					eating.play();
 				}
-				food.setVisible(false);
-				eating.play();
 			}
+		});
+
+		OOP.forArr(walls, function (el) {
+			el.draw();
+			el.move(point(-5*r, 0));
+		});
+
+		OOP.forArr(enemies, function (el) {
+			el.draw();
+			el.move(point(-5*r, 0));
+		});
+
+		OOP.forArr(foods, function (el) {
+			el.draw();
+			el.move(point(-5*r, 0));
+		});
+
+		OOP.forArr(flag, function (el) {
+			el.draw();
+			el.move(point(-5*r, 0));
+
+			if (el.isStaticIntersect(player) || el.x < player.x) {
+					brush.drawText({
+						x : width/5, y : height/3,
+						text : 'You have passed the ' + level + ' level!!!',
+						size : 40*r,
+						color : 'red', strokeColor : 'white',
+						strokeWidth : 1.5*r
+					});
+					backgroundAudio.stop();
+					win.play();
+					setTimeout(function(){
+						player.health = 100;
+						game.setLoop(nextGameName);
+					}, 1000);
+
+
+			}
+
+		});
+		
+		brush.drawText({
+			x : width/7, y : 8*r,
+			text : Math.floor(player.health),
+			size : 18*r,
+			color : '#98D1CC',
+			strokeColor : 'black',
+			strokeWidth : 1*r
+		});
+
+		player.speed.y += player.gr;
+
+		if (key.isPress('RIGHT')) {
+			player.speed.x += 5;
 		}
-	});
-
-	OOP.forArr(walls1, function (el) {
-		el.draw();
-		el.move(point(-5*r, 0));
-	});
-
-	OOP.forArr(enemies1, function (el) {
-		el.draw();
-		el.move(point(-5*r, 0));
-	});
-
-	OOP.forArr(foods1, function (el) {
-		el.draw();
-		el.move(point(-5*r, 0));
-	});
-
-	OOP.forArr(flag1, function (el) {
-		el.draw();
-		el.move(point(-5*r, 0));
-
-		if (el.isStaticIntersect(player) || el.x < player.x) {
-				game.stop();
-				brush.drawText({
-					x : width/5, y : height/3,
-					text : 'You pass the second level, Dude!!!',
-					size : 40*r,
-					color : 'red', strokeColor : 'white',
-					strokeWidth : 1.5*r
-				});
-				backgroundAudio.stop();
-				win.play();
-
+		if (key.isPress('LEFT')) {
+			player.speed.x += -5;
+		}
+		if (key.isUp('LEFT') || key.isUp('RIGHT')) {
+			player.speed.x = 0;
 		}
 
-	});
-	
-	brush.drawText({
-		x : width/7, y : 8*r,
-		text : Math.floor(player.health),
-		size : 18*r,
-		color : '#98D1CC',
-		strokeColor : 'black',
-		strokeWidth : 1*r
-	});
+		if (key.isPress('ESC')) {
+			paused.play();
+			game.setLoop(pause);
+		}
+	 
+		if (player.speed.y) {
+			player.y += player.speed.y;
+		}
 
-	player.speed.y += player.gr;
+		if (player.speed.x) {
+			player.x += player.speed.x;
+		}
 
-	if (key.isPress('RIGHT')) {
-		player.speed.x += 5;
-	}
-	if (key.isPress('LEFT')) {
-		player.speed.x += -5;
-	}
-	if (key.isUp('LEFT') || key.isUp('RIGHT')) {
-		player.speed.x = 0;
-	}
-
-	if (key.isPress('ESC')) {
-		paused.play();
-		game.setLoop('pause1');
-	}
- 
-	if (player.speed.y) {
-		player.y += player.speed.y;
-	}
-
-	if (player.speed.x) {
-		player.x += player.speed.x;
-	}
-
-	if (player.health == 0) {
-		backgroundAudio.stop();
-		game.setLoop('lose');
-	}
-
-	if (player.health > 100) {
-		player.health = 100;
-	}
-
-	if (key.isDown('LEFT') && player.x < 10){
-  		player.x += 5;
-  	}
-
-  	if (key.isDown('RIGHT') && player.x > (width - 100)){
-  		player.x -= 5;
-  	}
-
-  	
-  	if (key.isPress('CTRL')){
-  		if (backgroundAudio.playing) {
-	
+		if (player.health == 0) {
 			backgroundAudio.stop();
-			
-		} else {
-			
-			backgroundAudio.play();
-			
-		}
-  	}
-
-	moveBackground1(8);
-	timer1.start();
-});
-
-// Third game loop
-game.newLoop('game2', function () {
-	// game.clear();
-	fon5.draw();
-	fon6.draw();
-	player.draw();
-	heart.draw();
-	timer2.restart();
-
-	OOP.forArr(kunai, function (el) {
-		el.draw();
-		el.move(point(0, 1.5*r));
-
-		if (el.isStaticIntersect(player)) {
-				if(el.visible === true){
-					if(player.health < 20){
-						player.health = 0;
-					} else{
-					player.health -= 20;
-					}
-				}
-				el.setVisible(false);
-				airBomb.play();
+			game.setLoop('lose');
 		}
 
-		if (el.isStaticIntersect(walls)) {
-				el.setVisible(false);			
-		}
+		if (key.isDown('LEFT') && player.x < 10){
+	  		player.x += 5;
+	  	}
 
-	});
+	  	if (key.isDown('RIGHT') && player.x > (width - 100)){
+	  		player.x -= 5;
+	  	}
 
-	OOP.drawArr(walls2, function (wall) {
-		if (wall.isInCameraStatic()) {
-			if (wall.isStaticIntersect(player)) {
-				if (player.speed.y > 0) {
-					if (key.isDown('UP')) {
-						player.speed.y = -12*r;
-						jump.play();
-					}else {
-						player.y = wall.y - player.h; 
-						player.speed.y *= -0.3;
-					}
-				}
-			}
-		}
-	});
-
-	OOP.drawArr(enemies2, function (enemy) {
-		if (enemy.isInCameraStatic()) {
-			if (enemy.isStaticIntersect(player)) {
-				if(enemy.visible === true){
-					if (player.health < 15){
-						player.health = 0;
-					} else {
-					player.health -= 15;
-					}
-				}
-				enemy.setVisible(false);
-				punch.play();	
-			}
-		}
-	});
-
-	OOP.drawArr(foods2, function (food) {
-		if (food.isInCameraStatic()) {
-			if (food.isStaticIntersect(player)) {
-				if(food.visible === true){
-					if (player.health > 90) {
-					player.health = 100;			
-					}  else {
-				       player.health += 10;
-				   	}
-				}
-				food.setVisible(false);
-				eating.play();
-			}
-		}
-	});
-
-	OOP.forArr(walls2, function (el) {
-		el.draw();
-		el.move(point(-5*r, 0));
-	});
-
-	OOP.forArr(enemies2, function (el) {
-		el.draw();
-		el.move(point(-5*r, 0));
-	});
-
-	OOP.forArr(foods2, function (el) {
-		el.draw();
-		el.move(point(-5*r, 0));
-	});
-
-	OOP.forArr(flag2, function (el) {
-		el.draw();
-		el.move(point(-5*r, 0));
-
-		if (el.isStaticIntersect(player) || el.x < player.x) {
-				game.stop();
-				brush.drawText({
-					x : width/5, y : height/3,
-					text : 'You pass the third lvl, Dude!!!',
-					size : 40*r,
-					color : 'red', strokeColor : 'white',
-					strokeWidth : 1.5*r
-				});
+	  	
+	  	if (key.isPress('CTRL')){
+	  		if (backgroundAudio.playing) {
+		
 				backgroundAudio.stop();
-				win.play();
+				
+			} else {
+				
+				backgroundAudio.play();
+				
+			}
+	  	}
 
-		}
-
+		moveBackground(8, fon1, fon2);
+		timer.start();
 	});
-	
-	brush.drawText({
-		x : width/7, y : 8*r,
-		text : Math.floor(player.health),
-		size : 18*r,
-		color : '#98D1CC',
-		strokeColor : 'black',
-		strokeWidth : 1*r
-	});
+}
 
-	player.speed.y += player.gr;
-
-	if (key.isPress('RIGHT')) {
-		player.speed.x += 5;
-	}
-	if (key.isPress('LEFT')) {
-		player.speed.x += -5;
-	}
-	if (key.isUp('LEFT') || key.isUp('RIGHT')) {
-		player.speed.x = 0;
-	}
-
-	if (key.isPress('ESC')) {
-		paused.play();
-		game.setLoop('pause2');
-	}
- 
-	if (player.speed.y) {
-		player.y += player.speed.y;
-	}
-
-	if (player.speed.x) {
-		player.x += player.speed.x;
-	}
-
-	if (player.health == 0) {
-		backgroundAudio.stop();
-		game.setLoop('lose');
-	}
-
-	if (player.health > 100) {
-		player.health = 100;
-	}
-
-	if (key.isDown('LEFT') && player.x < 10){
-  		player.x += 5;
-  	}
-
-  	if (key.isDown('RIGHT') && player.x > (width - 100)){
-  		player.x -= 5;
-  	}
-
-  	
-  	if (key.isPress('CTRL')){
-  		if (backgroundAudio.playing) {
-	
-			backgroundAudio.stop();
-			
-		} else {
-			
-			backgroundAudio.play();
-			
-		}
-  	}
-
-	moveBackground2(8);
-	timer2.start();
-});
-
-// First lvl pause loop
+setGameLoop('game', timer, walls, enemies, foods, flag, fon1, fon2, 'game1', 1, 'pause');
+setGameLoop('game1', timer1, walls1, enemies1, foods1, flag1, fon3, fon4, 'game2', 2, 'pause1');
+setGameLoop('game2', timer2, walls2, enemies2, foods2, flag2, fon5, fon6,'menu', 3, 'pause2');
 
 game.newLoop('pause', function () {
 	brush.drawText({
@@ -944,7 +552,6 @@ game.newLoop('pause', function () {
 	}
 });
 
-// Second lvl pause loop
 
 game.newLoop('pause1', function () {
 	brush.drawText({
@@ -967,8 +574,6 @@ game.newLoop('pause1', function () {
 		game.setLoop('game1');
 	}
 });
-
-// Third lvl pause loop
 
 game.newLoop('pause2', function () {
 	brush.drawText({
@@ -1002,6 +607,124 @@ game.newLoop('lose', function () {
 		strokeWidth : 2*r
 	});
 
+});
+
+var createText = function(text){
+	return game.newTextObject({
+			x : width/7, y : 8*r,
+			text : text,
+			size : 18*r,
+			color : '#98D1CC',
+			strokeColor : 'black',
+			strokeWidth : 1*r
+		});
+}
+
+var texts = [{
+	visible : true,
+	text  : createText('Press LEFT to move Left')
+},
+{
+	visible : false,
+	text : createText('Press RIGHT to move Right')
+},
+{
+	visible : false,
+	text : createText('Press UP to jump')
+},
+{
+	visible : false,
+	text : createText('Press ESC to pass menu')
+}];
+game.newLoop('instruct', function () {
+	fon1.draw();
+	fon2.draw();
+	player.speed.y += player.gr;
+	for(var i = 0; i < texts.length; i++){
+		if(texts[i].visible){
+			brush.drawText(texts[i].text);
+		}else{
+			texts[i].text.setVisible(false);
+		}
+	}
+	if(texts[3].visible){
+		xp.draw();
+	}
+
+
+	OOP.drawArr(walls, function (wall) {
+			if (wall.isInCameraStatic()) {
+				if (wall.isStaticIntersect(player)) {
+					if (player.speed.y > 0) {
+						if (key.isDown('UP')) {
+							player.speed.y = -12*r;
+							jump.play();
+						}else {
+							player.y = wall.y - player.h; 
+							player.speed.y *= -0.3;
+						}
+					}
+				}
+			}
+		});
+	player.draw();
+	OOP.forArr(walls, function (el) {
+		el.draw();
+		el.move(point(-5*r, 0));
+	});
+	player.speed.y += player.gr;
+
+	if (key.isPress('LEFT')) {
+		if(texts[0].visible){
+			texts[0].visible = false;
+			texts[1].visible = true;			
+		}
+		player.speed.x += -5;
+	}
+
+	if (key.isPress('RIGHT')) {
+		player.speed.x += 5;
+		if(texts[1].visible){
+			texts[1].visible = false;
+			texts[2].visible = true;			
+		}
+	}
+
+	if (key.isPress('UP') && texts[2].visible) {
+		texts[2].visible = false;
+		texts[3].visible = true;
+	}
+
+	if (key.isUp('LEFT') || key.isUp('RIGHT')) {
+		player.speed.x = 0;
+	}
+
+	if (key.isPress('ESC')) {
+		paused.play();
+		game.setLoop('menu');
+	}
+ 
+	if (player.speed.y) {
+		player.y += player.speed.y;
+	}
+
+	if (player.speed.x) {
+		player.x += player.speed.x;
+	}
+
+	if (player.health == 0) {
+		backgroundAudio.stop();
+		game.setLoop('lose');
+	}
+
+	if (key.isDown('LEFT') && player.x < 10){
+  		player.x += 5;
+  	}
+
+  	if (key.isDown('RIGHT') && player.x > (width - 100)){
+  		player.x -= 5;
+  	}
+	moveBackground(8, fon1, fon2);
 });
 
 game.newLoopFromClassObject('menu', new Menu(pjs, {
